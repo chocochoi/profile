@@ -1,3 +1,7 @@
-.index-div {
-  color: #ff2222;
+.index-hello {
+    color: $white;
+    width: 100px;
+    height: 100px;
+    background: url("#{$images}/img-test.png");
 }
+

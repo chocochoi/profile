@@ -1,11 +1,13 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 import Hello from '@/Hello';
-import scss from '@styles/index.scss';
+import '@styles/index.scss';
 
 const Index = () => (
-  <div className="index-div">
-    <Hello/>
-  </div>
-)
+  <>
+    <Helmet title="Main Page" />
+    <Hello />
+  </>
+);
 
 export default Index;

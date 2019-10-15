@@ -1,34 +1,60 @@
+/* Import modules */
 const path = require('path');
-const webpack = require('webpack');
-const withCSS = require('@zeit/next-css')
-const withSass = require('@zeit/next-sass')
+const withCSS = require('@zeit/next-css');
+const withSass = require('@zeit/next-sass');
+const withPlugins = require('next-compose-plugins');
 
-const commonsChunkConfig = (config, test = /\.css$/) => {
-  config.plugins = config.plugins.map(plugin => {
-      if (
-          plugin.constructor.name === 'CommonsChunkPlugin' &&
-          plugin.minChunks != null
-  ) {
-      const defaultMinChunks = plugin.minChunks;
-      plugin.minChunks = (module, count) => {
-          if (module.resource && module.resource.match(test)) {
-              return true;
-          }
-          return defaultMinChunks(module, count);
-      };
-  }
-  return plugin;
-  });
-  return config;
+/* Configuration */
+const NextAppConfig = {
+    // distDir: 'build',
+    webpack: (config, options) => {
+        config.resolve.alias = {
+            ...(config.resolve.alias || {}),
+            '@styles': path.join(__dirname, 'assets/styles'),
+            '@layout': path.join(__dirname, 'layout'),
+            '@images': path.join(__dirname, 'static/images'),
+            '@': path.join(__dirname, 'components'),
+        }
+        config.module.rules = [
+            ...config.module.rules,
+            ...[{
+                    test: /\.js$/,
+                    loader: 'eslint-loader',
+                    exclude: ['/node_modules/', '/.next/', '/out/'],
+                    enforce: 'pre',
+                    options: {
+                        emitWarning: true,
+                    },
+                },{
+                    test: /\.(png|woff|woff2|eot|ttf|gif|jpg|ico|svg)$/,
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name]_[hash].[ext]',
+                        publicPath: `/_next/static/files`,
+                        outputPath: 'static/files'
+                    }
+                },{
+                    test: /\.scss$/,
+                    use: [
+                        'sass-loader',
+                        {
+                            loader: 'sass-resources-loader',
+                            options: {
+                                resources: [path.join(__dirname, 'assets/styles/common/*.scss')]
+                            }
+                        }
+                    ],
+                }
+                
+            ]
+        ]
+        return config;
+    },
 };
 
-module.exports = withCSS(withSass({
-  webpack: (config, { isServer }) => {
-      config = commonsChunkConfig(config, /\.(sass|scss|css)$/)
-      config.resolve.alias = {
-        '@styles': path.join(__dirname, 'assets/styles'),
-        '@': path.join(__dirname, 'components'),
-      }
-      return config
-  }
-}))
+
+/* Export declaration */
+module.exports = withPlugins([ 
+    [ withCSS ],
+    [ withSass ], 
+], NextAppConfig );

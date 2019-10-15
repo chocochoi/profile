@@ -1,2 +1,4 @@
-# profile
-리액트 프로필 프로젝트
+# react-next-setting
+react next.js<br/>
+react ^16.8.4 <br/>
+next ^8.0.3 <br/>
